@@ -1,52 +1,40 @@
-const int trigPin   = 9;
-const int echoPin   = 10;
-const int buzzerPin = 5;
-const int ledPin    = 2;   // NEW LED on pin 2
+const int ledPin = 8;
+const int buttonPin = 2;
+
+unsigned long startTime;
+bool waitingForPress = false;
 
 void setup() {
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
-  pinMode(buzzerPin, OUTPUT);
   pinMode(ledPin, OUTPUT);
+  pinMode(buttonPin, INPUT_PULLUP);
   Serial.begin(9600);
+
+  Serial.println("Reaction Time Game Ready!");
+  delay(1000);
 }
 
 void loop() {
-  // Send ultrasonic pulse
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(5);
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
+  // Step 1: wait random time
+  digitalWrite(ledPin, LOW);
+  delay(random(2000, 5000));  // 2–5 seconds
 
-  // Read echo (with timeout)
-  long duration = pulseIn(echoPin, HIGH, 25000);
-  if (duration == 0) return;
+  // Step 2: turn LED on
+  digitalWrite(ledPin, HIGH);
+  startTime = millis();
+  waitingForPress = true;
 
-  int distance = duration / 58; // cm
-  Serial.println(distance);
+  // Step 3: wait for button press
+  while (waitingForPress) {
+    if (digitalRead(buttonPin) == LOW) {
+      unsigned long reactionTime = millis() - startTime;
+      Serial.print("Reaction Time: ");
+      Serial.print(reactionTime);
+      Serial.println(" ms");
 
-  // ONLY activate when close
-  if (distance < 30) {
-    distance = constrain(distance, 5, 30);
+      digitalWrite(ledPin, LOW);
+      waitingForPress = false;
 
-    // Closer → faster blinking/beeping
-    int delayTime = map(distance, 5, 30, 50, 400);
-
-    // LED + buzzer ON
-    digitalWrite(buzzerPin, HIGH);
-    digitalWrite(ledPin, HIGH);
-    delay(delayTime);
-
-    // LED + buzzer OFF
-    digitalWrite(buzzerPin, LOW);
-    digitalWrite(ledPin, LOW);
-    delay(delayTime);
-
-  } else {
-    // Far away → everything OFF
-    digitalWrite(buzzerPin, LOW);
-    digitalWrite(ledPin, LOW);
-    delay(100);
+      delay(3000);  // pause before next round
+    }
   }
 }
