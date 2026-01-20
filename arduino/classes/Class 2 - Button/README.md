@@ -45,3 +45,4 @@ By completing this project, students will:
 2. LED short leg (–) → **330Ω resistor**
 3. Other end of resistor → **GND**
 
+![Button setup](./IMG_5916.jpeg)

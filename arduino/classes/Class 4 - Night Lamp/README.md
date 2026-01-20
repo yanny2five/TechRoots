@@ -45,3 +45,5 @@ By completing this project, students will:
 1. **Pin 8 → LED long leg (+)**
 2. LED short leg (–) → **330Ω resistor**
 3. Other end of resistor → **GND**
+
+![Night Lamp setup](./nightlamp.jpg)

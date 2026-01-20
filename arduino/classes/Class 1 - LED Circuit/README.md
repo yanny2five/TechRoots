@@ -37,3 +37,4 @@ This is a **no-code** beginner project.
 - A resistor is required to protect the LED
 - Disconnect the battery when finished
 
+![LED circuit setup](./LED%20Circut.jpg)

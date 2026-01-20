@@ -35,3 +35,5 @@ Servo motors have **three wires**:
 | Yellow / Orange | Digital Pin 9 |
 
 Make sure all connections are secure before uploading the code.
+
+![Servo Motor setup](./IMG_5909.jpeg)
