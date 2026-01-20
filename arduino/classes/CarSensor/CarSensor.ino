@@ -1,40 +1,81 @@
-const int ledPin = 8;
-const int buttonPin = 2;
+#include <Servo.h>
 
-unsigned long startTime;
-bool waitingForPress = false;
+// Ultrasonic
+const int trigPin = 9;
+const int echoPin = 10;
+
+// LEDs
+const int greenLED = 3;
+const int yellowLED = 5;
+const int redLED = 6;
+
+// Buzzer
+const int buzzerPin = 2;
+
+// Servo
+const int servoPin = 13;
+Servo landingServo;
+
+int servoAngle = 0;
 
 void setup() {
-  pinMode(ledPin, OUTPUT);
-  pinMode(buttonPin, INPUT_PULLUP);
-  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
 
-  Serial.println("Reaction Time Game Ready!");
-  delay(1000);
+  pinMode(greenLED, OUTPUT);
+  pinMode(yellowLED, OUTPUT);
+  pinMode(redLED, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+
+  landingServo.attach(servoPin);
+  landingServo.write(servoAngle);
+
+  Serial.begin(9600);
 }
 
 void loop() {
-  // Step 1: wait random time
-  digitalWrite(ledPin, LOW);
-  delay(random(2000, 5000));  // 2–5 seconds
+  // Ultrasonic pulse
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
 
-  // Step 2: turn LED on
-  digitalWrite(ledPin, HIGH);
-  startTime = millis();
-  waitingForPress = true;
+  long duration = pulseIn(echoPin, HIGH, 25000);
+  int distance = duration * 0.034 / 2;
 
-  // Step 3: wait for button press
-  while (waitingForPress) {
-    if (digitalRead(buttonPin) == LOW) {
-      unsigned long reactionTime = millis() - startTime;
-      Serial.print("Reaction Time: ");
-      Serial.print(reactionTime);
-      Serial.println(" ms");
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
 
-      digitalWrite(ledPin, LOW);
-      waitingForPress = false;
+  // Reset outputs
+  digitalWrite(greenLED, LOW);
+  digitalWrite(yellowLED, LOW);
+  digitalWrite(redLED, LOW);
+  digitalWrite(buzzerPin, LOW);
 
-      delay(3000);  // pause before next round
-    }
+  int stepSize = 1;
+  int stepDelay = 40; // slow by default
+
+  if (distance > 50) {
+    digitalWrite(greenLED, HIGH);
+    stepSize = 1;   // slow
+    stepDelay = 40;
+  } else if (distance > 20) {
+    digitalWrite(yellowLED, HIGH);
+    stepSize = 3;   // medium
+    stepDelay = 20;
+  } else if (distance > 0) {
+    digitalWrite(redLED, HIGH);
+    digitalWrite(buzzerPin, HIGH);
+    stepSize = 6;   // fast
+    stepDelay = 8;
   }
+
+  // Move servo (faster when closer)
+  servoAngle += stepSize;
+  if (servoAngle > 90) servoAngle = 0;
+
+  landingServo.write(servoAngle);
+  delay(stepDelay);
 }
