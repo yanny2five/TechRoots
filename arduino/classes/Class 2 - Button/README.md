@@ -39,6 +39,29 @@ By completing this project, students will:
 ⚠️ No resistor is needed for the button when using `INPUT_PULLUP`.
 
 ---
+const int buttonPin = 5;
+const int ledPin = 7;
+
+bool ledState = false;
+int lastButtonState = HIGH;
+
+void setup() {
+  pinMode(buttonPin, INPUT_PULLUP); // button from pin 5 to GND
+  pinMode(ledPin, OUTPUT);
+}
+
+void loop() {
+  int buttonState = digitalRead(buttonPin);
+
+  // Detect a new button press
+  if (lastButtonState == HIGH && buttonState == LOW) {
+    ledState = !ledState;              // flip LED state
+    digitalWrite(ledPin, ledState);    // update LED
+    delay(200);                        // debounce delay
+  }
+
+  lastButtonState = buttonState;
+}
 
 ### 💡 LED Wiring
 1. **Pin 4 → LED long leg (+)**
